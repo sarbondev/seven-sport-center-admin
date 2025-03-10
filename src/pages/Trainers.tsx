@@ -14,7 +14,7 @@ export const Trainers: React.FC = () => {
   });
 
   const { data, error, isLoading, mutate } = useSWR<TrainerTypes[]>(
-    `/trainers`,
+    `/trainer`,
     fetcher
   );
 
@@ -26,7 +26,7 @@ export const Trainers: React.FC = () => {
     if (!isConfirmed) return;
 
     try {
-      await Axios.delete(`/trainers/${id}`);
+      await Axios.delete(`/trainer/${id}`);
       alert("Трейнер успешно удален!");
       mutate((prevState) => prevState?.filter((trainer) => trainer._id !== id));
     } catch (error) {
@@ -77,11 +77,11 @@ export const Trainers: React.FC = () => {
                 <img
                   className="h-[300px] object-cover w-full"
                   src={teamate.photo}
-                  alt={teamate.fullname}
+                  alt={teamate.fullName}
                 />
                 <div className="p-4 space-y-2">
                   <h2 className="text-lg font-semibold truncate">
-                    {teamate.fullname}
+                    {teamate.fullName}
                   </h2>
                   <h3>{teamate.experience} лет опыта</h3>
                   <div className="flex justify-end">
@@ -99,7 +99,7 @@ export const Trainers: React.FC = () => {
         )}
       </section>
 
-      {isModalActive && <TrainerModal setIsModalActive={setIsModalActive} />}
+      {isModalActive && <TrainerModal setIsModalActive={setIsModalActive} mutate={mutate}/>}
       {editData.isEditing && (
         <TrainerEditModal editData={editData} setEditData={setEditData} />
       )}

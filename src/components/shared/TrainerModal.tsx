@@ -4,21 +4,18 @@ import { Trash } from "lucide-react";
 
 type ModalProps = {
   setIsModalActive: React.Dispatch<React.SetStateAction<boolean>>;
+  mutate: any;
 };
 
-export default function TrainerModal({ setIsModalActive }: ModalProps) {
+export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
   const [formData, setFormData] = useState({
-    photo: "",
-    fullname: "",
+    photo: null as File | null,
+    fullName: "",
     experience: "",
     achievements: [] as string[],
   });
 
-  const [errors, setErrors] = useState({
-    fullname: "",
-    experience: "",
-    photo: "",
-  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [isUploading, setIsUploading] = useState(false);
 
@@ -28,36 +25,19 @@ export default function TrainerModal({ setIsModalActive }: ModalProps) {
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      if (!e.target.files || e.target.files.length === 0) {
-        console.error("No file selected");
-        return;
-      }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
 
-      const formImageData = new FormData();
-      const file = e.target.files[0];
-
-      if (!file.type.startsWith("image/")) {
-        console.error("Selected file is not an image");
-        return;
-      }
-
-      formImageData.append("file", file);
-      setIsUploading(true);
-
-      const { data } = await Axios.post("upload", formImageData);
-
-      setFormData((prevCourse) => ({
-        ...prevCourse,
-        photo: data.filename,
+    if (!file.type.startsWith("image/")) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        photo: "Файл должен быть изображением.",
       }));
-
-      setIsUploading(false);
-    } catch (err) {
-      console.error("Error uploading file:", err);
-      setIsUploading(false);
+      return;
     }
+
+    setFormData((prevData) => ({ ...prevData, photo: file }));
   };
 
   const handleAchievementChange = (
@@ -83,19 +63,22 @@ export default function TrainerModal({ setIsModalActive }: ModalProps) {
 
   const validateForm = () => {
     let isValid = true;
-    const newErrors = { fullname: "", experience: "", photo: "" };
+    const newErrors: Record<string, string> = {};
 
-    if (!formData.fullname.trim()) {
-      newErrors.fullname = "Полное имя обязательно";
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Полное имя обязательно";
       isValid = false;
     }
 
     if (!formData.experience.trim() || isNaN(Number(formData.experience))) {
-      newErrors.experience = "Опыт должен быть числом и не может быть пустым";
+      newErrors.experience = "Опыт должен быть числом";
       isValid = false;
     }
 
-    if (!formData.photo) newErrors.photo = "Фото обязательно.";
+    if (!formData.photo) {
+      newErrors.photo = "Фото обязательно";
+      isValid = false;
+    }
 
     setErrors(newErrors);
     return isValid;
@@ -103,19 +86,26 @@ export default function TrainerModal({ setIsModalActive }: ModalProps) {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
-      const response = await Axios.post("trainers", formData);
-      if (response.data) {
-        alert("Трейнер успешно добавлен!");
-        setIsModalActive(false);
-      }
+      setIsUploading(true);
+      const formDataToSend = new FormData();
+      formDataToSend.append("fullName", formData.fullName);
+      formDataToSend.append("experience", formData.experience);
+      if (formData.photo) formDataToSend.append("photo", formData.photo);
+      formData.achievements.forEach((ach, index) => {
+        formDataToSend.append(`achievements[${index}]`, ach);
+      });
+
+      await Axios.post("/trainer", formDataToSend);
+      alert("Тренер успешно добавлен!");
+      setIsModalActive(false);
+      mutate();
     } catch (error: any) {
       alert(error.response?.data.message || "Произошла ошибка");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -143,15 +133,15 @@ export default function TrainerModal({ setIsModalActive }: ModalProps) {
           </p>
           <input
             type="text"
-            name="fullname"
+            name="fullName"
             className={`outline-none border p-2 rounded-md ${
-              errors.fullname ? "border-red-600" : "border-black"
+              errors.fullName ? "border-red-600" : "border-black"
             }`}
-            value={formData.fullname}
+            value={formData.fullName}
             onChange={handleInputChange}
           />
-          {errors.fullname && (
-            <p className="text-red-600 text-sm">{errors.fullname}</p>
+          {errors.fullName && (
+            <p className="text-red-600 text-sm">{errors.fullName}</p>
           )}
         </label>
         <label className="flex flex-col gap-2 text-[14px]">
@@ -173,7 +163,7 @@ export default function TrainerModal({ setIsModalActive }: ModalProps) {
           )}
         </label>
         <div className="flex flex-col gap-2">
-          <p>Достижения:</p>
+          <p className="text-sm">Достижения:</p>
           {formData.achievements.map((achievement, index) => (
             <div key={index} className="flex gap-2">
               <input
@@ -199,21 +189,20 @@ export default function TrainerModal({ setIsModalActive }: ModalProps) {
             Добавить достижение
           </button>
         </div>
-        {/* =============== */}
 
         <div className="space-y-2">
-          <label htmlFor="photo" className="block text-sm font-medium">
+          <label htmlFor="photo" className="block text-sm">
             Фотография
             <span className={`text-red-600`}>*</span>
           </label>
-          <div className="flex items-center space-x-4">
+          <div className="space-y-4 relative flex justify-center items-center">
             <label
               htmlFor="photo"
               className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-600 rounded-lg cursor-pointer hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {formData.photo ? (
                 <img
-                  src={formData.photo}
+                  src={URL.createObjectURL(formData.photo)}
                   alt="Preview"
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -233,19 +222,18 @@ export default function TrainerModal({ setIsModalActive }: ModalProps) {
             {formData.photo && (
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, photo: "" })}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
+                onClick={() => setFormData({ ...formData, photo: null })}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 absolute"
               >
                 Убрать
               </button>
             )}
           </div>
           {errors.photo && (
-            <span className="text-red-500 text-sm">{errors.photo}</span>
+            <p className="text-red-600 text-sm">{errors.photo}</p>
           )}
         </div>
 
-        {/* ============== */}
         <div className="flex justify-end gap-4">
           <button
             type="button"

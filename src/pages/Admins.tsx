@@ -14,7 +14,7 @@ export const Admins: React.FC = () => {
   });
 
   const { data, error, isLoading, mutate } = useSWR<UserTypes[]>(
-    `/users`,
+    `/admin`,
     fetcher
   );
 
@@ -26,7 +26,7 @@ export const Admins: React.FC = () => {
     if (!isConfirmed) return;
 
     try {
-      await Axios.delete(`users/${id}`);
+      await Axios.delete(`admin/${id}`);
       alert("Администратор успешно удален!");
       mutate((prevState) => prevState?.filter((admin) => admin._id !== id));
     } catch (error) {
@@ -75,7 +75,7 @@ export const Admins: React.FC = () => {
           <tbody>
             {data?.map((admin: UserTypes) => (
               <tr key={admin._id} className="hover:bg-gray-50">
-                <td className="p-3 border border-gray-200">{admin.name}</td>
+                <td className="p-3 border border-gray-200">{admin.fullName}</td>
                 <td className="p-3 border border-gray-200">
                   {admin.phoneNumber}
                 </td>
@@ -105,7 +105,9 @@ export const Admins: React.FC = () => {
         </table>
       </section>
 
-      {isModalActive && <AdminModal setIsModalActive={setIsModalActive} />}
+      {isModalActive && (
+        <AdminModal setIsModalActive={setIsModalActive} mutate={mutate} />
+      )}
       {editData.isEditing && (
         <AdminEditModal editData={editData} setEditData={setEditData} />
       )}

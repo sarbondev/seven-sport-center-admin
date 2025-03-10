@@ -1,5 +1,5 @@
 export interface UserTypes {
-  name: string;
+  fullName: string;
   password: string;
   phoneNumber: string;
   _id: string;
@@ -7,7 +7,7 @@ export interface UserTypes {
 
 export interface TrainerTypes {
   photo: string;
-  fullname: string;
+  fullName: string;
   experience: string;
   achievements: string[];
   _id: string;

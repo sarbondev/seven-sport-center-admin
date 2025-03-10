@@ -19,11 +19,11 @@ function App() {
     async function getMyData() {
       try {
         dispatch(setPending());
-        const response = await Axios.get("users/profile");
-        if (response.data) {
+        const response = await Axios.get("admin/profile");
+        if (!response.data.message) {
           dispatch(setUser(response.data));
         } else {
-          dispatch(setError("No user data available"));
+          dispatch(setError(response.data.message));
         }
       } catch (error: any) {
         dispatch(setError(error.response?.data || "Unknown Token"));

@@ -3,27 +3,31 @@ import { Axios } from "../../middlewares/Axios";
 
 type ModalProps = {
   setIsModalActive: React.Dispatch<React.SetStateAction<boolean>>;
+  mutate: any;
 };
 
-export const AdminModal: React.FC<ModalProps> = ({ setIsModalActive }) => {
+export const AdminModal: React.FC<ModalProps> = ({
+  setIsModalActive,
+  mutate,
+}) => {
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
     phoneNumber: "",
     password: "",
   });
 
   const [errors, setErrors] = useState({
-    name: "",
+    fullName: "",
     phoneNumber: "",
     password: "",
   });
 
   const validateForm = () => {
     let valid = true;
-    const newErrors = { name: "", phoneNumber: "", password: "" };
+    const newErrors = { fullName: "", phoneNumber: "", password: "" };
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Введите ваше полное имя";
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Введите ваше полное имя";
       valid = false;
     }
 
@@ -58,10 +62,11 @@ export const AdminModal: React.FC<ModalProps> = ({ setIsModalActive }) => {
     if (!validateForm()) return;
 
     try {
-      const response = await Axios.post("users/register", formData);
+      const response = await Axios.post("admin/register", formData);
       if (response.data) {
         alert("Администратор успешно добавлен!");
         setIsModalActive(false);
+        mutate();
       }
     } catch (error: any) {
       alert(error.response?.data.message || "Произошла ошибка");
@@ -92,14 +97,14 @@ export const AdminModal: React.FC<ModalProps> = ({ setIsModalActive }) => {
           </p>
           <input
             type="text"
-            name="name"
+            name="fullName"
             className={`outline-none border p-2 rounded-md ${
-              errors.name ? "border-red-600" : "border-black"
+              errors.fullName ? "border-red-600" : "border-black"
             }`}
-            value={formData.name}
+            value={formData.fullName}
             onChange={handleInputChange}
           />
-          {errors.name && <p className="text-red-600">{errors.name}</p>}
+          {errors.fullName && <p className="text-red-600">{errors.fullName}</p>}
         </label>
         <label className="flex flex-col gap-2 text-[14px]">
           <p>

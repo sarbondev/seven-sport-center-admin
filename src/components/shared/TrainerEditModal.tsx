@@ -22,13 +22,13 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
 
   const [formData, setFormData] = useState<UserTypes>({
     _id: "",
-    name: "",
+    fullName: "",
     phoneNumber: "",
     password: "",
   });
 
   const [errors, setErrors] = useState({
-    name: "",
+    fullName: "",
     phoneNumber: "",
     password: "",
   });
@@ -42,10 +42,10 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
 
   const validateForm = () => {
     let valid = true;
-    const newErrors = { name: "", phoneNumber: "", password: "" };
+    const newErrors = { fullName: "", phoneNumber: "", password: "" };
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Введите ваше полное имя";
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Введите ваше полное имя";
       valid = false;
     }
 
@@ -130,14 +130,14 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
           </p>
           <input
             type="text"
-            name="name"
+            name="fullName"
             onChange={handleInputChange}
-            value={formData.name}
+            value={formData.fullName}
             className={`outline-none border p-2 rounded-md ${
-              errors.name ? "border-red-600" : "border-black"
+              errors.fullName ? "border-red-600" : "border-black"
             }`}
           />
-          {errors.name && <p className="text-red-600">{errors.name}</p>}
+          {errors.fullName && <p className="text-red-600">{errors.fullName}</p>}
         </label>
         <label className="flex flex-col gap-2 text-[14px]">
           <p>
