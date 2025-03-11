@@ -14,7 +14,7 @@ function Header() {
       <button
         onClick={() => {
           if (window.confirm("Вы реально хотите выйти?")) {
-            localStorage.removeItem("token");
+            localStorage.removeItem("ssctoken");
             window.location.href = "/";
           }
         }}

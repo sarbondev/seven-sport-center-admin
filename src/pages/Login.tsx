@@ -59,7 +59,7 @@ export const Login: React.FC = () => {
         await Axios.post<LoginResponse>("admin/login", formData)
       ).data;
       if (response.token) {
-        localStorage.setItem("token", response.token);
+        localStorage.setItem("ssctoken", response.token);
         window.location.href = "/";
       }
     } catch (error: any) {

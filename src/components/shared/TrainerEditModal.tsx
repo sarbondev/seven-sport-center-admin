@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Axios } from "../../middlewares/Axios";
 import useSWR from "swr";
 import { fetcher } from "../../middlewares/Fetcher";
-import { UserTypes } from "../../Types/indexTypes";
+import { TrainerTypes } from "../../Types/indexTypes";
+import { Trash } from "lucide-react";
 
 type EditDataTypes = {
   id: string;
@@ -15,58 +16,90 @@ type ModalProps = {
 };
 
 export default function AdminEditModal({ editData, setEditData }: ModalProps) {
-  const { data, error, isLoading, mutate } = useSWR<UserTypes[]>(
-    `/users`,
+  const { data, error, isLoading, mutate } = useSWR<TrainerTypes[]>(
+    `/trainer`,
     fetcher
   );
 
-  const [formData, setFormData] = useState<UserTypes>({
+  const [formData, setFormData] = useState({
     _id: "",
+    photo: null as File | null,
     fullName: "",
-    phoneNumber: "",
-    password: "",
+    experience: "",
+    achievements: [] as string[],
   });
 
-  const [errors, setErrors] = useState({
-    fullName: "",
-    phoneNumber: "",
-    password: "",
-  });
+  console.log(formData);
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (data) {
-      const user = data.find((user) => user._id === editData.id);
-      if (user) setFormData({ ...user, password: "" });
+      const trainer = data.find((user) => user._id === editData.id);
+      if (trainer) setFormData(trainer);
+      return;
     }
   }, [data, editData.id]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+
+    if (!file.type.startsWith("image/")) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        photo: "Файл должен быть изображением.",
+      }));
+      return;
+    }
+
+    setFormData((prevData) => ({ ...prevData, photo: file }));
+  };
+
+  const handleAchievementChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const newAchievements = [...formData.achievements];
+    newAchievements[index] = e.target.value;
+    setFormData((prevData) => ({ ...prevData, achievements: newAchievements }));
+  };
+
+  const addAchievementField = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      achievements: [...prevData.achievements, ""],
+    }));
+  };
+
+  const removeAchievementField = (index: number) => {
+    const newAchievements = formData.achievements.filter((_, i) => i !== index);
+    setFormData((prevData) => ({ ...prevData, achievements: newAchievements }));
+  };
+
   const validateForm = () => {
-    let valid = true;
-    const newErrors = { fullName: "", phoneNumber: "", password: "" };
+    let isValid = true;
+    const newErrors: Record<string, string> = {};
 
     if (!formData.fullName.trim()) {
-      newErrors.fullName = "Введите ваше полное имя";
-      valid = false;
+      newErrors.fullName = "Полное имя обязательно";
+      isValid = false;
     }
 
-    if (!formData.phoneNumber.trim()) {
-      newErrors.phoneNumber = "Введите номер телефона";
-      valid = false;
-    } else if (!/^\d{9}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = "Номер телефона должен содержать ровно 9 цифр";
-      valid = false;
+    if (!formData.experience.trim() || isNaN(Number(formData.experience))) {
+      newErrors.experience = "Опыт должен быть числом";
+      isValid = false;
     }
 
-    if (!formData.password.trim()) {
-      newErrors.password = "Пароль обязателен";
-      valid = false;
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Пароль должен содержать не менее 6 символов";
-      valid = false;
+    if (!formData.photo) {
+      newErrors.photo = "Фото обязательно";
+      isValid = false;
     }
 
     setErrors(newErrors);
-    return valid;
+    return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -74,13 +107,22 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
     if (!validateForm()) return;
 
     try {
-      const response = await Axios.put(`users/${editData.id}`, formData);
-      if (response.data) {
-        setEditData((prevData) => ({ ...prevData, isEditing: false }));
-        mutate();
-      }
+      setIsUploading(true);
+      const formDataToSend = new FormData();
+      formDataToSend.append("fullName", formData.fullName);
+      formDataToSend.append("experience", formData.experience);
+      if (formData.photo) formDataToSend.append("photo", formData.photo);
+      formData.achievements.forEach((ach, index) => {
+        formDataToSend.append(`achievements[${index}]`, ach);
+      });
+      await Axios.put(`/trainer/${formData._id}`, formDataToSend);
+      alert("Тренер успешно изменен!");
+      setEditData((prevData) => ({ ...prevData, isEditing: false, id: "" }));
+      mutate();
     } catch (error: any) {
       alert(error.response?.data.message || "Произошла ошибка");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -139,35 +181,101 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
           />
           {errors.fullName && <p className="text-red-600">{errors.fullName}</p>}
         </label>
+
         <label className="flex flex-col gap-2 text-[14px]">
           <p>
-            Введите ваш номер телефона <span className="text-red-600">*</span>
+            Введите опыт трейнера (в годах)
+            <span className="text-red-600">*</span>
           </p>
           <input
             type="text"
-            name="phoneNumber"
-            onChange={handleInputChange}
-            value={formData.phoneNumber}
+            name="experience"
             className={`outline-none border p-2 rounded-md ${
-              errors.phoneNumber ? "border-red-600" : "border-black"
+              errors.experience ? "border-red-600" : "border-black"
             }`}
+            value={formData.experience}
+            onChange={handleInputChange}
           />
-          {errors.phoneNumber && (
-            <p className="text-red-600">{errors.phoneNumber}</p>
+          {errors.experience && (
+            <p className="text-red-600 text-sm">{errors.experience}</p>
           )}
         </label>
-        <label className="flex flex-col gap-2 text-[14px]">
-          <p>Введите новый пароль</p>
-          <input
-            type="password"
-            name="password"
-            onChange={handleInputChange}
-            className={`outline-none border p-2 rounded-md ${
-              errors.password ? "border-red-600" : "border-black"
-            }`}
-          />
-          {errors.password && <p className="text-red-600">{errors.password}</p>}
-        </label>
+        <div className="flex flex-col gap-2">
+          <p className="text-sm">Достижения:</p>
+          {formData.achievements.map((achievement, index) => (
+            <div key={index} className="flex gap-2">
+              <input
+                type="text"
+                className="outline-none border p-2 rounded-md border-black flex-1"
+                value={achievement}
+                onChange={(e) => handleAchievementChange(e, index)}
+              />
+              <button
+                type="button"
+                onClick={() => removeAchievementField(index)}
+                className="bg-red-600 text-white p-2 rounded-md text-sm"
+              >
+                <Trash size={14} />
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addAchievementField}
+            className="bg-blue-600 text-white p-2 rounded-md"
+          >
+            Добавить достижение
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="photo" className="block text-sm">
+            Фотография
+            <span className={`text-red-600`}>*</span>
+          </label>
+          <div className="space-y-4 relative flex justify-center items-center">
+            <label
+              htmlFor="photo"
+              className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-600 rounded-lg cursor-pointer hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {formData.photo ? (
+                <img
+                  src={
+                    typeof formData.photo === "string"
+                      ? formData.photo
+                      : URL.createObjectURL(formData.photo)
+                  }
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              ) : (
+                <span className="text-sm text-gray-400">
+                  Загрузить фотографию
+                </span>
+              )}
+              <input
+                id="photo"
+                type="file"
+                name="file"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
+            {formData.photo && (
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, photo: null })}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 absolute"
+              >
+                Убрать
+              </button>
+            )}
+          </div>
+          {errors.photo && (
+            <p className="text-red-600 text-sm">{errors.photo}</p>
+          )}
+        </div>
+
         <div className="flex justify-end gap-4">
           <button
             type="button"
@@ -181,6 +289,7 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
           <button
             type="submit"
             className="bg-black text-white p-2 text-sm uppercase rounded-md"
+            disabled={isUploading}
           >
             Сохранить
           </button>

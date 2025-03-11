@@ -6,7 +6,7 @@ export interface UserTypes {
 }
 
 export interface TrainerTypes {
-  photo: string;
+  photo: null | any;
   fullName: string;
   experience: string;
   achievements: string[];

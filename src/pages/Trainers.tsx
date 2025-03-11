@@ -84,7 +84,19 @@ export const Trainers: React.FC = () => {
                     {teamate.fullName}
                   </h2>
                   <h3>{teamate.experience} лет опыта</h3>
-                  <div className="flex justify-end">
+                  <div className="flex justify-end gap-2">
+                    <button
+                      className="bg-black text-white px-2 rounded-md"
+                      onClick={() =>
+                        setEditData((prevData) => ({
+                          ...prevData,
+                          id: teamate._id,
+                          isEditing: true,
+                        }))
+                      }
+                    >
+                      Изменить
+                    </button>
                     <button
                       className="bg-red-600 text-white px-2 rounded-md"
                       onClick={() => handleDeleteTrainer(teamate._id)}
@@ -99,7 +111,9 @@ export const Trainers: React.FC = () => {
         )}
       </section>
 
-      {isModalActive && <TrainerModal setIsModalActive={setIsModalActive} mutate={mutate}/>}
+      {isModalActive && (
+        <TrainerModal setIsModalActive={setIsModalActive} mutate={mutate} />
+      )}
       {editData.isEditing && (
         <TrainerEditModal editData={editData} setEditData={setEditData} />
       )}
