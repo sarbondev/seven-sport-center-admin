@@ -29,8 +29,6 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
     achievements: [] as string[],
   });
 
-  console.log(formData);
-
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [isUploading, setIsUploading] = useState(false);

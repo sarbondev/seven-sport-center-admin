@@ -10,6 +10,9 @@ function Header() {
         <li>
           <NavLink to={"/trainers"}>Трейнеры</NavLink>
         </li>
+        <li>
+          <NavLink to={"/blogs"}>Блоги</NavLink>
+        </li>
       </ul>
       <button
         onClick={() => {

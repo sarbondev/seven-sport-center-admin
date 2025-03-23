@@ -12,3 +12,11 @@ export interface TrainerTypes {
   achievements: string[];
   _id: string;
 }
+
+export interface BlogTypes {
+  title: string;
+  description: string;
+  photos: string[];
+  _id: string;
+  createdAt: string;
+}

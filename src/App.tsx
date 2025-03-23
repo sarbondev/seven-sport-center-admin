@@ -10,6 +10,7 @@ import { Loading } from "./pages/Loading";
 import { Login } from "./pages/Login";
 import { Error } from "./pages/Error";
 import { Trainers } from "./pages/Trainers";
+import { Blogs } from "./pages/Blogs";
 
 function App() {
   const { isPending, isAuth } = useSelector((state: RootState) => state.user);
@@ -54,6 +55,10 @@ function App() {
             {
               path: "trainers",
               element: <Trainers />,
+            },
+            {
+              path: "blogs",
+              element: <Blogs />,
             },
             {
               path: "*",
