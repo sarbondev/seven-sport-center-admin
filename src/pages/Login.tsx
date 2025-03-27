@@ -73,27 +73,36 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <section className="flex justify-center items-center h-screen p-4 bg-slate-200">
+    <section className="flex justify-center items-center h-screen p-4 bg-slate-100">
       <form
         style={{ boxShadow: "rgba(0, 0, 0, 0.1) 0px 4px 12px" }}
-        className="w-full md:max-w-lg flex flex-col gap-6 px-8 py-16 bg-white rounded-md"
+        className="w-full md:max-w-md flex flex-col gap-6 p-10 bg-white rounded-md"
         onSubmit={handleFormSubmit}
       >
-        <h1 className="text-center text-2xl font-bold">Вход</h1>
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-red-700 to-red-500">
+            ADMIN PANEL
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Войдите, чтобы получить доступ к панели управления
+          </p>
+        </div>
         {error && (
           <p className="text-red-600 text-center bg-red-100 py-2 rounded-md">
             {error}
           </p>
         )}
         <label className="flex flex-col gap-2">
-          <p>
-            Введите ваш номер телефона <span className="text-red-600">*</span>
+          <p className="text-sm">
+            Номер телефона{" "}
+            <span className="text-sm text-blue-700">(90 123 45 67)</span>
+            <span className="text-red-600">*</span>
           </p>
           <input
             type="text"
             name="phoneNumber"
             className={`outline-none border text-sm p-2 ${
-              errors.phoneNumber ? "border-red-600" : "border-black"
+              errors.phoneNumber ? "border-red-600" : "border-gray-500"
             } rounded-md`}
             value={formData.phoneNumber}
             onChange={handleInputChange}
@@ -103,14 +112,14 @@ export const Login: React.FC = () => {
           )}
         </label>
         <label className="flex flex-col gap-2">
-          <p>
-            Введите ваш пароль <span className="text-red-600">*</span>
+          <p className="text-sm">
+            Пароль <span className="text-red-600">*</span>
           </p>
           <input
             type="password"
             name="password"
             className={`outline-none border text-sm p-2 ${
-              errors.password ? "border-red-600" : "border-black"
+              errors.password ? "border-red-600" : "border-gray-500"
             } rounded-md`}
             value={formData.password}
             onChange={handleInputChange}
@@ -121,7 +130,7 @@ export const Login: React.FC = () => {
         </label>
         <button
           type="submit"
-          className={`bg-black text-white p-2 text-sm uppercase font-semibold rounded-md ${
+          className={`bg-red-600 text-white py-3 text-sm uppercase font-semibold rounded-md ${
             isLoading ? "opacity-50" : ""
           }`}
           disabled={isLoading}
