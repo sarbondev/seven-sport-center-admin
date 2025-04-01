@@ -9,7 +9,8 @@ export interface TrainerTypes {
   photo: null | any;
   fullName: string;
   experience: string;
-  achievements: string[];
+  level: string;
+  students: string;
   _id: string;
 }
 

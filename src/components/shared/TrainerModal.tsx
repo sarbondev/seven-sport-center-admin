@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { Axios } from "../../middlewares/Axios";
-import { Trash } from "lucide-react";
 
 type ModalProps = {
   setIsModalActive: React.Dispatch<React.SetStateAction<boolean>>;
@@ -12,7 +12,8 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
     photo: null as File | null,
     fullName: "",
     experience: "",
-    achievements: [] as string[],
+    level: "",
+    students: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -40,27 +41,6 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
     setFormData((prevData) => ({ ...prevData, photo: file }));
   };
 
-  const handleAchievementChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    const newAchievements = [...formData.achievements];
-    newAchievements[index] = e.target.value;
-    setFormData((prevData) => ({ ...prevData, achievements: newAchievements }));
-  };
-
-  const addAchievementField = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      achievements: [...prevData.achievements, ""],
-    }));
-  };
-
-  const removeAchievementField = (index: number) => {
-    const newAchievements = formData.achievements.filter((_, i) => i !== index);
-    setFormData((prevData) => ({ ...prevData, achievements: newAchievements }));
-  };
-
   const validateForm = () => {
     let isValid = true;
     const newErrors: Record<string, string> = {};
@@ -70,8 +50,13 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
       isValid = false;
     }
 
-    if (!formData.experience.trim() || isNaN(Number(formData.experience))) {
-      newErrors.experience = "Опыт должен быть числом";
+    if (!formData.level.trim()) {
+      newErrors.level = "Уровень (пояс) обязателен";
+      isValid = false;
+    }
+
+    if (!formData.students.trim() || isNaN(Number(formData.students))) {
+      newErrors.experience = "Число студентов должен быть числом";
       isValid = false;
     }
 
@@ -93,10 +78,9 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
       const formDataToSend = new FormData();
       formDataToSend.append("fullName", formData.fullName);
       formDataToSend.append("experience", formData.experience);
+      formDataToSend.append("level", formData.level);
+      formDataToSend.append("students", formData.students);
       if (formData.photo) formDataToSend.append("photo", formData.photo);
-      formData.achievements.forEach((ach, index) => {
-        formDataToSend.append(`achievements[${index}]`, ach);
-      });
 
       await Axios.post("/trainer", formDataToSend);
       alert("Тренер успешно добавлен!");
@@ -162,33 +146,56 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
             <p className="text-red-600 text-sm">{errors.experience}</p>
           )}
         </label>
-        <div className="flex flex-col gap-2">
-          <p className="text-sm">Достижения:</p>
-          {formData.achievements.map((achievement, index) => (
-            <div key={index} className="flex gap-2">
-              <input
-                type="text"
-                className="outline-none border p-2 rounded-md border-black flex-1"
-                value={achievement}
-                onChange={(e) => handleAchievementChange(e, index)}
-              />
-              <button
-                type="button"
-                onClick={() => removeAchievementField(index)}
-                className="bg-red-600 text-white p-2 rounded-md text-sm"
-              >
-                <Trash size={14} />
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addAchievementField}
-            className="bg-blue-600 text-white p-2 rounded-md"
+        <label className="flex flex-col gap-2 text-[14px]">
+          <p>
+            Выберите уровень трейнера (пояс)
+            <span className="text-red-600">*</span>
+          </p>
+          <select
+            name="level"
+            className={`outline-none border p-2 rounded-md ${
+              errors.level ? "border-red-600" : "border-black"
+            }`}
+            value={formData.level}
+            onChange={(e) => {
+              setFormData((prevData) => ({
+                ...prevData,
+                level: e.target.value,
+              }));
+              setErrors((prevErrors) => ({ ...prevErrors, level: "" }));
+            }}
           >
-            Добавить достижение
-          </button>
-        </div>
+            <option value="">Выберите цвет пояса</option>
+            <option value="Oq">Белый (Oq)</option>
+            <option value="Sariq">Желтый (Sariq)</option>
+            <option value="Apelsin">Оранжевый (Apelsin)</option>
+            <option value="Yashil">Зеленый (Yashil)</option>
+            <option value="Ko'k">Синий (Ko'k)</option>
+            <option value="Jigarrang">Коричневый (Jigarrang)</option>
+            <option value="Qora">Черный (Qora)</option>
+          </select>
+          {errors.level && (
+            <p className="text-red-600 text-sm">{errors.level}</p>
+          )}
+        </label>
+        <label className="flex flex-col gap-2 text-[14px]">
+          <p>
+            количество студентов
+            <span className="text-red-600">*</span>
+          </p>
+          <input
+            type="text"
+            name="students"
+            className={`outline-none border p-2 rounded-md ${
+              errors.students ? "border-red-600" : "border-black"
+            }`}
+            value={formData.students}
+            onChange={handleInputChange}
+          />
+          {errors.students && (
+            <p className="text-red-600 text-sm">{errors.students}</p>
+          )}
+        </label>
 
         <div className="space-y-2">
           <label htmlFor="photo" className="block text-sm">
@@ -202,7 +209,9 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
             >
               {formData.photo ? (
                 <img
-                  src={URL.createObjectURL(formData.photo)}
+                  src={
+                    URL.createObjectURL(formData.photo) || "/placeholder.svg"
+                  }
                   alt="Preview"
                   className="w-full h-full object-cover rounded-lg"
                 />
