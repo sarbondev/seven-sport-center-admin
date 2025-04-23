@@ -81,7 +81,7 @@ export const Login: React.FC = () => {
       >
         <div className="text-center">
           <h1 className="text-3xl font-extrabold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-red-700 to-red-500">
-            ADMIN PANEL
+            7sportcenter
           </h1>
           <p className="mt-2 text-sm text-gray-600">
             Войдите, чтобы получить доступ к панели управления
@@ -94,13 +94,13 @@ export const Login: React.FC = () => {
         )}
         <label className="flex flex-col gap-2">
           <p className="text-sm">
-            Номер телефона{" "}
-            <span className="text-sm text-blue-700">(90 123 45 67)</span>
+            Номер телефона
             <span className="text-red-600">*</span>
           </p>
           <input
             type="text"
             name="phoneNumber"
+            placeholder="90 123 45 67"
             className={`outline-none border text-sm p-2 ${
               errors.phoneNumber ? "border-red-600" : "border-gray-500"
             } rounded-md`}
@@ -118,6 +118,7 @@ export const Login: React.FC = () => {
           <input
             type="password"
             name="password"
+            placeholder="EasyPass1234"
             className={`outline-none border text-sm p-2 ${
               errors.password ? "border-red-600" : "border-gray-500"
             } rounded-md`}
