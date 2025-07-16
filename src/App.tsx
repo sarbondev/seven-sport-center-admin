@@ -21,6 +21,7 @@ function App() {
       try {
         dispatch(setPending());
         const response = await Axios.get("admin/profile");
+
         if (!response.data.message) {
           dispatch(setUser(response.data));
         } else {

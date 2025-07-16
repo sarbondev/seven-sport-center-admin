@@ -1,6 +1,5 @@
-// export const BASE_URL = "http://localhost:3000/api";
-// export const BASE_URL = "https://seven-sport-center-server.onrender.com/api";
-export const BASE_URL = "https://server.7sportcenter.uz/api";
+import { BASE_URL } from "../lib/API";
+
 const token = localStorage.getItem("ssctoken") || "";
 
 export const fetcher = (url: string) =>

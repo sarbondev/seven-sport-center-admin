@@ -56,7 +56,7 @@ export const Login: React.FC = () => {
     setIsLoading(true);
     try {
       const response = (
-        await Axios.post<LoginResponse>("admin/login", formData)
+        await Axios.post<LoginResponse>("auth/login", formData)
       ).data;
       if (response.token) {
         localStorage.setItem("ssctoken", response.token);
