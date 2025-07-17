@@ -62,7 +62,7 @@ export const AdminModal: React.FC<ModalProps> = ({
     if (!validateForm()) return;
 
     try {
-      const response = await Axios.post("admin/register", formData);
+      const response = await Axios.post("auth/register", formData);
       if (response.data) {
         alert("Администратор успешно добавлен!");
         setIsModalActive(false);

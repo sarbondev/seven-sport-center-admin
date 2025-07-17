@@ -39,7 +39,7 @@ export const PhotoCarousel: React.FC<PhotoCarouselProps> = ({
   };
 
   return (
-    <div className="relative h-[300px] w-full">
+    <div className="relative h-[300px] w-full rounded-t-lg overflow-hidden">
       {photos.length > 1 && (
         <>
           <button

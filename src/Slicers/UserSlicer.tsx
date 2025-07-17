@@ -2,14 +2,19 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserTypes } from "../Types/indexTypes";
 
 interface UserState {
-  data: UserTypes | {};
+  data: UserTypes;
   isPending: boolean;
   error: string;
   isAuth: boolean;
 }
 
 const initialState: UserState = {
-  data: {},
+  data: {
+    fullName: "",
+    password: "",
+    phoneNumber: "",
+    _id: "",
+  },
   isPending: false,
   error: "",
   isAuth: false,
