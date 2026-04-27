@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { Axios } from "../../middlewares/Axios";
 import { X } from "lucide-react";
+import type { BlogTypes, ApiErrorResponse } from "../../Types/indexTypes";
+import type { AxiosError } from "axios";
+import type { KeyedMutator } from "swr";
 
 type ModalProps = {
   setIsModalActive: React.Dispatch<React.SetStateAction<boolean>>;
-  mutate: any;
+  mutate: KeyedMutator<BlogTypes[]>;
 };
 
 export default function BlogModal({ setIsModalActive, mutate }: ModalProps) {
@@ -93,8 +96,13 @@ export default function BlogModal({ setIsModalActive, mutate }: ModalProps) {
       alert("Блог успешно добавлен!");
       setIsModalActive(false);
       mutate();
-    } catch (error: any) {
-      alert(error.response?.data.message || "Произошла ошибка");
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      alert(
+        axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
+          "Произошла ошибка"
+      );
     } finally {
       setIsUploading(false);
     }
@@ -192,7 +200,7 @@ export default function BlogModal({ setIsModalActive, mutate }: ModalProps) {
                 errors.photos ? "border-red-600" : "border-gray-600"
               }`}
             >
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-[var(--admin-muted)]">
                 Загрузить фотографию
               </span>
               <input
@@ -210,7 +218,7 @@ export default function BlogModal({ setIsModalActive, mutate }: ModalProps) {
             <p className="text-red-600 text-sm">{errors.photos}</p>
           )}
           {formData.photos.length > 0 && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-[var(--admin-muted)]">
               Выбрано файлов: {formData.photos.length}
             </p>
           )}
@@ -220,13 +228,13 @@ export default function BlogModal({ setIsModalActive, mutate }: ModalProps) {
           <button
             type="button"
             onClick={() => setIsModalActive(false)}
-            className="bg-red-600 text-white p-2 uppercase rounded-md text-sm"
+            className="admin-text-on-dark rounded-md bg-red-600 p-2 text-sm uppercase"
           >
             Назад
           </button>
           <button
             type="submit"
-            className="bg-black text-white p-2 uppercase rounded-md text-sm disabled:bg-gray-400"
+            className="admin-text-on-dark rounded-md bg-black p-2 text-sm uppercase disabled:bg-gray-400"
             disabled={isUploading}
           >
             {isUploading ? "Загрузка..." : "Создать"}

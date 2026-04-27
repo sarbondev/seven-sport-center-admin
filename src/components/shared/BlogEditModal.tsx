@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Axios } from "../../middlewares/Axios";
 import { X } from "lucide-react";
-
-type BlogData = {
-  _id: string;
-  title: string;
-  description: string;
-  photos: string[];
-};
+import type { BlogTypes, ApiErrorResponse } from "../../Types/indexTypes";
+import type { AxiosError } from "axios";
+import type { KeyedMutator } from "swr";
 
 type EditModalProps = {
   setIsModalActive: React.Dispatch<React.SetStateAction<boolean>>;
-  mutate: any;
-  blogData: BlogData;
+  mutate: KeyedMutator<BlogTypes[]>;
+  blogData: BlogTypes;
 };
 
 export default function BlogEditModal({
@@ -117,7 +113,7 @@ export default function BlogEditModal({
       formDataToSend.append("description", formData.description);
 
       existingPhotos.forEach((photo) => {
-        formDataToSend.append(`existingPhotos`, photo);
+        formDataToSend.append("existingPhotos", photo);
       });
 
       formData.photos.forEach((photo) => {
@@ -129,9 +125,12 @@ export default function BlogEditModal({
 
       setIsModalActive(false);
       mutate();
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
       alert(
-        error.response?.data.message || "Произошла ошибка при обновлении блога"
+        axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
+          "Произошла ошибка при обновлении блога"
       );
     } finally {
       setIsUploading(false);
@@ -262,7 +261,7 @@ export default function BlogEditModal({
                 errors.photos ? "border-red-600" : "border-gray-600"
               }`}
             >
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-[var(--admin-muted)]">
                 Добавить новые фотографии
               </span>
               <input
@@ -282,7 +281,7 @@ export default function BlogEditModal({
 
           {/* Photo count summary */}
           {(existingPhotos.length > 0 || formData.photos.length > 0) && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-[var(--admin-muted)]">
               Всего фотографий: {existingPhotos.length + formData.photos.length}
               {existingPhotos.length > 0 &&
                 ` (${existingPhotos.length} существующих)`}
@@ -296,13 +295,13 @@ export default function BlogEditModal({
           <button
             type="button"
             onClick={() => setIsModalActive(false)}
-            className="bg-red-600 text-white p-2 uppercase rounded-md text-sm"
+            className="admin-text-on-dark rounded-md bg-red-600 p-2 text-sm uppercase"
           >
             Отмена
           </button>
           <button
             type="submit"
-            className="bg-black text-white p-2 uppercase rounded-md text-sm disabled:bg-gray-400"
+            className="admin-text-on-dark rounded-md bg-black p-2 text-sm uppercase disabled:bg-gray-400"
             disabled={isUploading}
           >
             {isUploading ? "Сохранение..." : "Сохранить изменения"}

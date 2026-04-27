@@ -20,7 +20,7 @@ export const Admins: React.FC = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { data, error, isLoading, mutate } = useSWR<UserTypes[]>(
+  const { data, isLoading, mutate } = useSWR<UserTypes[]>(
     `/admin`,
     fetcher
   );
@@ -52,7 +52,7 @@ export const Admins: React.FC = () => {
       alert("Administrator muvaffaqiyatli olib tashlandi!");
       mutate((prevState) => prevState?.filter((admin) => admin._id !== id));
       setActiveDropdown(null);
-    } catch (error) {
+    } catch {
       alert("Administratorni oʻchirishda xatolik yuz berdi.");
     }
   };
@@ -85,38 +85,38 @@ export const Admins: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <p className="text-lg font-medium text-red-600">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <>
-      <section className="p-4">
-        <div className="flex justify-between items-center mb-4 gap-3 flex-wrap">
-          <h1 className="text-2xl uppercase font-bold">Administratorlar</h1>
+      <section className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.16em] text-[#c4452d]">
+              Boshqaruv
+            </p>
+            <h1 className="admin-display text-4xl leading-none">
+              Administratorlar
+            </h1>
+          </div>
           <button
-            className="bg-black text-white px-4 py-2 rounded-md text-sm"
+            className="admin-text-on-dark rounded-xl bg-[#101820] px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] transition hover:bg-[#c4452d]"
             onClick={() => setIsModalActive(true)}
           >
             Yangi admin
           </button>
         </div>
 
-        <table className="w-full border-collapse border border-gray-200 shadow-md bg-white">
+        <div className="overflow-hidden rounded-[1.25rem] border border-black/5 bg-white/75 shadow-lg backdrop-blur-xl">
+        <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="p-3 border border-gray-200">Foydalanuvchi</th>
-              <th className="p-3 border border-gray-200 text-right">Action</th>
+            <tr className="bg-[#f4ede3] text-left">
+              <th className="p-3.5">Foydalanuvchi</th>
+              <th className="p-3.5 text-right">Action</th>
             </tr>
           </thead>
           <tbody>
             {data?.map((admin: UserTypes) => (
-              <tr key={admin._id} className="hover:bg-gray-50">
-                <td className="p-3 border border-gray-200">
+              <tr key={admin._id} className="border-t border-black/5 hover:bg-[#fcfaf7]">
+                <td className="p-3.5">
                   <div className="flex items-center gap-2">
                     <span> {admin.fullName}</span>
                     {currentUser._id === admin._id ? (
@@ -125,34 +125,37 @@ export const Admins: React.FC = () => {
                   </div>
                   <a
                     href={`tel: +998${admin.phoneNumber}`}
-                    className="text-sm opacity-50"
+                    className="text-sm text-[var(--admin-muted)]"
                   >
                     {formatUzPhone(admin.phoneNumber)}
                   </a>
                 </td>
-                <td className="p-3 border border-gray-200 text-right">
+                <td className="p-3.5 text-right">
                   <div className="relative inline-block" ref={dropdownRef}>
                     <button
                       onClick={() => toggleDropdown(admin._id)}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                      className="rounded-full p-2 transition-colors duration-200 hover:bg-black/5"
                       aria-label="Действия"
                     >
-                      <MoreVertical size={16} className="text-gray-600" />
+                      <MoreVertical
+                        size={16}
+                        className="text-[var(--admin-muted)]"
+                      />
                     </button>
 
                     {activeDropdown === admin._id && (
-                      <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                      <div className="absolute right-0 z-10 mt-1 w-48 rounded-2xl border border-black/5 bg-white p-1 shadow-lg">
                         <div className="py-1">
                           <button
                             onClick={() => handleEditAdmin(admin._id)}
-                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                            className="flex w-full items-center rounded-xl px-4 py-2 text-sm text-[var(--admin-ink)] transition-colors duration-200 hover:bg-[#f6f1ea]"
                           >
                             <Edit size={14} className="mr-2" />
                             O'zgartirish
                           </button>
                           <button
                             onClick={() => handleDeleteAdmin(admin._id)}
-                            className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                            className="flex w-full items-center rounded-xl px-4 py-2 text-sm text-red-600 transition-colors duration-200 hover:bg-red-50"
                           >
                             <Trash2 size={14} className="mr-2" />
                             Olib tashlash
@@ -166,6 +169,7 @@ export const Admins: React.FC = () => {
             ))}
           </tbody>
         </table>
+        </div>
       </section>
 
       {isModalActive && (

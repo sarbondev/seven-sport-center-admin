@@ -17,7 +17,7 @@ export const Trainers: React.FC = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { data, error, isLoading, mutate } = useSWR<TrainerTypes[]>(
+  const { data, isLoading, mutate } = useSWR<TrainerTypes[]>(
     `/trainer`,
     fetcher
   );
@@ -50,7 +50,7 @@ export const Trainers: React.FC = () => {
       alert("Трейнер успешно удален!");
       mutate((prevState) => prevState?.filter((trainer) => trainer._id !== id));
       setActiveDropdown(null);
-    } catch (error) {
+    } catch {
       alert("Произошла ошибка при удалении трейнера.");
     }
   };
@@ -76,21 +76,18 @@ export const Trainers: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <p className="text-lg font-medium text-red-600">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <>
-      <section className="p-4">
-        <div className="flex justify-between items-center mb-4 gap-3 flex-wrap">
-          <h1 className="text-2xl uppercase font-bold">Трейнеры</h1>
+      <section className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.16em] text-[#c4452d]">
+              Jamoa
+            </p>
+            <h1 className="admin-display text-4xl leading-none">Трейнеры</h1>
+          </div>
           <button
-            className="bg-black text-white px-4 py-2 rounded-md text-sm"
+            className="admin-text-on-dark rounded-xl bg-[#101820] px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] transition hover:bg-[#c4452d]"
             onClick={() => setIsModalActive(true)}
           >
             Новый трейнер
@@ -99,29 +96,36 @@ export const Trainers: React.FC = () => {
 
         {data && data?.length <= 0 ? (
           <div className="h-[30vh] flex items-center justify-center">
-            <h1 className="text-xl text-gray-500">Нет трейнеров</h1>
+            <h1 className="text-xl text-[var(--admin-muted)]">
+              Нет трейнеров
+            </h1>
           </div>
         ) : (
           <div className="overflow-visible">
-            <table className="w-full border-collapse border border-gray-200 shadow-md bg-white">
+            <div className="overflow-hidden rounded-[1.25rem] border border-black/5 bg-white/75 shadow-lg backdrop-blur-xl">
+            <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-gray-100 text-left">
-                  <th className="p-3 border border-gray-200">Фото</th>
-                  <th className="p-3 border border-gray-200">Имя</th>
-                  <th className="p-3 border border-gray-200">Опыт</th>
-                  <th className="p-3 border border-gray-200 text-right">
+                <tr className="bg-[#f4ede3] text-left">
+                  <th className="p-3.5">Фото</th>
+                  <th className="p-3.5">Имя</th>
+                  <th className="p-3.5">Опыт</th>
+                  <th className="p-3.5 text-right">
                     Действия
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {data?.map((trainer: TrainerTypes) => (
-                  <tr key={trainer._id} className="hover:bg-gray-50">
-                    <td className="p-3 border border-gray-200">
+                  <tr key={trainer._id} className="border-t border-black/5 hover:bg-[#fcfaf7]">
+                    <td className="p-3.5">
                       <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
                         <img
                           className="w-full h-full object-cover"
-                          src={trainer.photo || "/placeholder.svg"}
+                          src={
+                            typeof trainer.photo === "string"
+                              ? trainer.photo
+                              : "/placeholder.svg"
+                          }
                           alt={trainer.fullName}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -130,39 +134,42 @@ export const Trainers: React.FC = () => {
                         />
                       </div>
                     </td>
-                    <td className="p-3 border border-gray-200">
-                      <div className="font-semibold text-gray-900">
+                    <td className="p-3.5">
+                      <div className="font-semibold text-[var(--admin-ink)]">
                         {trainer.fullName}
                       </div>
                     </td>
-                    <td className="p-3 border border-gray-200">
-                      <span className="text-gray-600">
+                    <td className="p-3.5">
+                      <span className="text-[var(--admin-muted)]">
                         {trainer.experience} лет опыта
                       </span>
                     </td>
-                    <td className="p-3 border border-gray-200 text-right">
+                    <td className="p-3.5 text-right">
                       <div className="relative inline-block" ref={dropdownRef}>
                         <button
                           onClick={() => toggleDropdown(trainer._id)}
-                          className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 relative z-10"
+                          className="relative z-10 rounded-full p-2 transition-colors duration-200 hover:bg-black/5"
                           aria-label="Действия"
                         >
-                          <MoreVertical size={16} className="text-gray-600" />
+                          <MoreVertical
+                            size={16}
+                            className="text-[var(--admin-muted)]"
+                          />
                         </button>
 
                         {activeDropdown === trainer._id && (
-                          <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-max">
+                          <div className="absolute right-0 z-50 mt-1 min-w-max w-48 rounded-2xl border border-black/5 bg-white p-1 shadow-lg">
                             <div className="py-1">
                               <button
                                 onClick={() => handleEditTrainer(trainer._id)}
-                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 whitespace-nowrap"
+                                className="flex w-full items-center whitespace-nowrap rounded-xl px-4 py-2 text-sm text-[var(--admin-ink)] transition-colors duration-200 hover:bg-[#f6f1ea]"
                               >
                                 <Edit size={14} className="mr-2" />
                                 Изменить
                               </button>
                               <button
                                 onClick={() => handleDeleteTrainer(trainer._id)}
-                                className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 whitespace-nowrap"
+                                className="flex w-full items-center whitespace-nowrap rounded-xl px-4 py-2 text-sm text-red-600 transition-colors duration-200 hover:bg-red-50"
                               >
                                 <Trash2 size={14} className="mr-2" />
                                 Удалить
@@ -176,6 +183,7 @@ export const Trainers: React.FC = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </section>

@@ -18,7 +18,7 @@ export const Blogs: React.FC = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { data, error, isLoading, mutate } = useSWR<BlogTypes[]>(
+  const { data, isLoading, mutate } = useSWR<BlogTypes[]>(
     `/blog`,
     fetcher
   );
@@ -49,7 +49,7 @@ export const Blogs: React.FC = () => {
       alert("Блог успешно удален!");
       mutate((prevState) => prevState?.filter((blog) => blog._id !== id));
       setActiveDropdown(null);
-    } catch (error) {
+    } catch {
       alert("Произошла ошибка при удалении блога.");
     }
   };
@@ -76,21 +76,18 @@ export const Blogs: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <p className="text-lg font-medium text-red-600">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <>
-      <section className="p-4">
-        <div className="flex justify-between items-center mb-4 gap-3 flex-wrap">
-          <h1 className="text-2xl uppercase font-bold">Блоги</h1>
+      <section className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.16em] text-[#c4452d]">
+              Kontent
+            </p>
+            <h1 className="admin-display text-4xl leading-none">Блоги</h1>
+          </div>
           <button
-            className="bg-black text-white px-4 py-2 rounded-md text-sm"
+            className="admin-text-on-dark rounded-xl bg-[#101820] px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] transition hover:bg-[#c4452d]"
             onClick={handleAddNewBlog}
           >
             Новый блог
@@ -99,40 +96,46 @@ export const Blogs: React.FC = () => {
 
         {data && data?.length <= 0 ? (
           <div className="h-[30vh] flex items-center justify-center">
-            <h1 className="text-xl text-gray-500">Нет блогов</h1>
+            <h1 className="text-xl text-[var(--admin-muted)]">Нет блогов</h1>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {data?.map((blog: BlogTypes) => (
-              <div key={blog._id} className="bg-gray-200 shadow-lg">
+              <div
+                key={blog._id}
+                className="overflow-hidden rounded-[1.25rem] border border-black/5 bg-white/75 shadow-lg backdrop-blur-xl"
+              >
                 <PhotoCarousel photos={blog.photos} altText={blog.title} />
-                <div className="p-4 space-y-2">
+                <div className="space-y-2 p-3.5">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-semibold truncate">
+                    <h2 className="truncate text-base font-semibold">
                       {blog.title}
                     </h2>
                     <div className="relative inline-block" ref={dropdownRef}>
                       <button
                         onClick={() => toggleDropdown(blog._id)}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 relative z-10"
+                        className="relative z-10 rounded-full p-2 transition-colors duration-200 hover:bg-black/5"
                         aria-label="Действия"
                       >
-                        <MoreVertical size={16} className="text-gray-600" />
+                        <MoreVertical
+                          size={16}
+                          className="text-[var(--admin-muted)]"
+                        />
                       </button>
 
                       {activeDropdown === blog._id && (
-                        <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-max">
+                        <div className="absolute right-0 z-50 mt-1 min-w-max w-48 rounded-2xl border border-black/5 bg-white p-1 shadow-lg">
                           <div className="py-1">
                             <button
                               onClick={() => handleEditBlog(blog)}
-                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 whitespace-nowrap"
+                              className="flex w-full items-center whitespace-nowrap rounded-xl px-4 py-2 text-sm text-[var(--admin-ink)] transition-colors duration-200 hover:bg-[#f6f1ea]"
                             >
                               <Edit size={14} className="mr-2" />
                               Изменить
                             </button>
                             <button
                               onClick={() => handleDeleteBlog(blog._id)}
-                              className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 whitespace-nowrap"
+                              className="flex w-full items-center whitespace-nowrap rounded-xl px-4 py-2 text-sm text-red-600 transition-colors duration-200 hover:bg-red-50"
                             >
                               <Trash2 size={14} className="mr-2" />
                               Удалить
@@ -142,7 +145,7 @@ export const Blogs: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <h3 className="text-sm text-gray-600 line-clamp-2">
+                  <h3 className="line-clamp-2 text-sm leading-6 text-[var(--admin-muted)]">
                     {blog.description}
                   </h3>
                 </div>

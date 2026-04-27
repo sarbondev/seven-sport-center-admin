@@ -1,10 +1,13 @@
 import type React from "react";
 import { useState } from "react";
 import { Axios } from "../../middlewares/Axios";
+import type { TrainerTypes, ApiErrorResponse } from "../../Types/indexTypes";
+import type { AxiosError } from "axios";
+import type { KeyedMutator } from "swr";
 
 type ModalProps = {
   setIsModalActive: React.Dispatch<React.SetStateAction<boolean>>;
-  mutate: any;
+  mutate: KeyedMutator<TrainerTypes[]>;
 };
 
 export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
@@ -55,8 +58,13 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
       isValid = false;
     }
 
+    if (!formData.experience.trim() || isNaN(Number(formData.experience))) {
+      newErrors.experience = "Опыт должен быть числом";
+      isValid = false;
+    }
+
     if (!formData.students.trim() || isNaN(Number(formData.students))) {
-      newErrors.experience = "Число студентов должен быть числом";
+      newErrors.students = "Число студентов должно быть числом";
       isValid = false;
     }
 
@@ -86,8 +94,13 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
       alert("Тренер успешно добавлен!");
       setIsModalActive(false);
       mutate();
-    } catch (error: any) {
-      alert(error.response?.data.message || "Произошла ошибка");
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      alert(
+        axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
+          "Произошла ошибка"
+      );
     } finally {
       setIsUploading(false);
     }
@@ -216,7 +229,7 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
                   className="w-full h-full object-cover rounded-lg"
                 />
               ) : (
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-[var(--admin-muted)]">
                   Загрузить фотографию
                 </span>
               )}
@@ -232,7 +245,7 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, photo: null })}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 absolute"
+                className="admin-text-on-dark absolute rounded-lg bg-red-500 px-4 py-2 text-sm font-medium hover:bg-red-600"
               >
                 Убрать
               </button>
@@ -247,13 +260,13 @@ export default function TrainerModal({ setIsModalActive, mutate }: ModalProps) {
           <button
             type="button"
             onClick={() => setIsModalActive(false)}
-            className="bg-red-600 text-white p-2 uppercase rounded-md text-sm"
+            className="admin-text-on-dark rounded-md bg-red-600 p-2 text-sm uppercase"
           >
             Назад
           </button>
           <button
             type="submit"
-            className="bg-black text-white p-2 uppercase rounded-md text-sm"
+            className="admin-text-on-dark rounded-md bg-black p-2 text-sm uppercase"
             disabled={isUploading}
           >
             Создать

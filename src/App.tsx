@@ -11,6 +11,8 @@ import { Login } from "./pages/Login";
 import { Error } from "./pages/Error";
 import { Trainers } from "./pages/Trainers";
 import { Blogs } from "./pages/Blogs";
+import type { ApiErrorResponse } from "./Types/indexTypes";
+import type { AxiosError } from "axios";
 
 function App() {
   const { isPending, isAuth } = useSelector((state: RootState) => state.user);
@@ -27,8 +29,15 @@ function App() {
         } else {
           dispatch(setError(response.data.message));
         }
-      } catch (error: any) {
-        dispatch(setError(error.response?.data || "Unknown Token"));
+      } catch (error) {
+        const axiosError = error as AxiosError<ApiErrorResponse>;
+        dispatch(
+          setError(
+            axiosError.response?.data?.message ||
+              axiosError.response?.data?.error ||
+              "Unknown Token"
+          )
+        );
       }
     }
     getMyData();

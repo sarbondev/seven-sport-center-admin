@@ -6,7 +6,7 @@ export interface UserTypes {
 }
 
 export interface TrainerTypes {
-  photo: null | any;
+  photo: string | File | null;
   fullName: string;
   experience: string;
   level: string;
@@ -20,4 +20,9 @@ export interface BlogTypes {
   photos: string[];
   _id: string;
   createdAt: string;
+}
+
+export interface ApiErrorResponse {
+  message?: string;
+  error?: string;
 }

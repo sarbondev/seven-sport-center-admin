@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { Axios } from "../../middlewares/Axios";
+import type { UserTypes, ApiErrorResponse } from "../../Types/indexTypes";
+import type { AxiosError } from "axios";
+import type { KeyedMutator } from "swr";
 
 type ModalProps = {
   setIsModalActive: React.Dispatch<React.SetStateAction<boolean>>;
-  mutate: any;
+  mutate: KeyedMutator<UserTypes[]>;
 };
 
 export const AdminModal: React.FC<ModalProps> = ({
@@ -62,14 +65,19 @@ export const AdminModal: React.FC<ModalProps> = ({
     if (!validateForm()) return;
 
     try {
-      const response = await Axios.post("admin/register", formData);
+      const response = await Axios.post("auth/register", formData);
       if (response.data) {
         alert("Администратор успешно добавлен!");
         setIsModalActive(false);
         mutate();
       }
-    } catch (error: any) {
-      alert(error.response?.data.message || "Произошла ошибка");
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      alert(
+        axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
+          "Произошла ошибка"
+      );
     }
   };
 
@@ -142,11 +150,14 @@ export const AdminModal: React.FC<ModalProps> = ({
           <button
             type="button"
             onClick={() => setIsModalActive(false)}
-            className="bg-red-600 text-white px-2 rounded-md"
+            className="admin-text-on-dark rounded-md bg-red-600 px-2"
           >
             Назад
           </button>
-          <button type="submit" className="bg-black text-white px-2 rounded-md">
+          <button
+            type="submit"
+            className="admin-text-on-dark rounded-md bg-black px-2"
+          >
             Создать
           </button>
         </div>

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Axios } from "../../middlewares/Axios";
 import useSWR from "swr";
 import { fetcher } from "../../middlewares/Fetcher";
-import { UserTypes } from "../../Types/indexTypes";
+import { UserTypes, ApiErrorResponse } from "../../Types/indexTypes";
+import type { AxiosError } from "axios";
 
 type EditDataTypes = {
   id: string;
@@ -82,8 +83,13 @@ export const AdminEditModal: React.FC<ModalProps> = ({
         setEditData((prevData) => ({ ...prevData, isEditing: false }));
         mutate();
       }
-    } catch (error: any) {
-      alert(error.response?.data.message || "Произошла ошибка");
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      alert(
+        axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
+          "Произошла ошибка"
+      );
     }
   };
 
@@ -174,7 +180,7 @@ export const AdminEditModal: React.FC<ModalProps> = ({
         <div className="flex justify-end gap-4">
           <button
             type="button"
-            className="bg-red-600 text-white p-2 text-sm uppercase rounded-md"
+            className="admin-text-on-dark rounded-md bg-red-600 p-2 text-sm uppercase"
             onClick={() =>
               setEditData((prevData) => ({ ...prevData, isEditing: false }))
             }
@@ -183,7 +189,7 @@ export const AdminEditModal: React.FC<ModalProps> = ({
           </button>
           <button
             type="submit"
-            className="bg-black text-white p-2 text-sm uppercase rounded-md"
+            className="admin-text-on-dark rounded-md bg-black p-2 text-sm uppercase"
           >
             Сохранить
           </button>

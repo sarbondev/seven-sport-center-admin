@@ -11,7 +11,6 @@ interface UserDropdownProps {
 
 const UserDropdown = ({ user, setShowPasswordDialog }: UserDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const getInitials = (name: string | undefined) => {
@@ -24,7 +23,6 @@ const UserDropdown = ({ user, setShowPasswordDialog }: UserDropdownProps) => {
       .slice(0, 2);
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -57,44 +55,46 @@ const UserDropdown = ({ user, setShowPasswordDialog }: UserDropdownProps) => {
   return (
     <div className="flex items-center space-x-4">
       <div className="relative" ref={dropdownRef}>
-        {/* Avatar Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative h-8 w-8 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 flex items-center justify-center text-sm font-medium"
+          className="admin-text-on-dark flex items-center gap-3 rounded-full border border-white/10 bg-white/8 px-2 py-2 transition hover:bg-white/12"
         >
-          {getInitials(user?.fullName)}
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d7ab52] text-sm font-bold text-[#101820]">
+            {getInitials(user?.fullName)}
+          </span>
+          <span className="hidden text-left md:block">
+            <span className="block text-sm font-semibold">{user?.fullName}</span>
+            <span className="admin-text-on-dark-muted block text-xs">
+              {user?.phoneNumber}
+            </span>
+          </span>
         </button>
 
-        {/* Dropdown Menu */}
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-            {/* User Info */}
-            <div className="px-4 py-3 border-b border-gray-100">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none text-gray-900">
-                  {user?.fullName}
-                </p>
-                <p className="text-xs leading-none text-gray-500">
-                  {user?.phoneNumber}
-                </p>
-              </div>
+          <div className="absolute right-0 mt-3 w-64 rounded-3xl border border-black/5 bg-white p-2 shadow-2xl z-50">
+            <div className="rounded-2xl bg-[#f4ede3] px-4 py-3">
+              <p className="text-sm font-semibold text-[var(--admin-ink)]">
+                {user?.fullName}
+              </p>
+              <p className="text-xs text-[var(--admin-muted)]">
+                {user?.phoneNumber}
+              </p>
             </div>
 
-            {/* Menu Items */}
-            <div className="py-1">
+            <div className="mt-2">
               <button
                 onClick={handlePasswordChange}
-                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                className="flex w-full items-center gap-2 rounded-2xl px-4 py-3 text-sm text-[var(--admin-ink)] transition hover:bg-[#f6f1ea]"
               >
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Parolni o'zgartirish</span>
+                <Settings className="h-4 w-4" />
+                <span>Parolni o&apos;zgartirish</span>
               </button>
 
               <button
                 onClick={handleLogout}
-                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                className="flex w-full items-center gap-2 rounded-2xl px-4 py-3 text-sm text-red-600 transition hover:bg-red-50"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="h-4 w-4" />
                 <span>Chiqish</span>
               </button>
             </div>

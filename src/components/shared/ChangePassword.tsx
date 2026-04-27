@@ -1,6 +1,8 @@
 import type React from "react";
 import { useState } from "react";
 import { Axios } from "../../middlewares/Axios";
+import type { ApiErrorResponse } from "../../Types/indexTypes";
+import type { AxiosError } from "axios";
 
 interface ChangePasswordDialogProps {
   open: boolean;
@@ -55,11 +57,14 @@ const ChangePasswordDialog = ({
         newPassword: "",
         confirmPassword: "",
       });
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
       console.log({
         title: "Xatolik",
         description:
-          error.response?.data?.message || "Parolni o'zgartirishda xatolik",
+          axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
+          "Parolni o'zgartirishda xatolik",
         variant: "destructive",
       });
     } finally {
@@ -83,10 +88,10 @@ const ChangePasswordDialog = ({
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-[var(--admin-ink)]">
             Parolni o'zgartirish
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="mt-1 text-sm text-[var(--admin-muted)]">
             Yangi parolni kiriting. Parol kamida 6 ta belgidan iborat bo'lishi
             kerak.
           </p>
@@ -99,7 +104,7 @@ const ChangePasswordDialog = ({
             <div>
               <label
                 htmlFor="currentPassword"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="mb-1 block text-sm font-medium text-[var(--admin-ink)]"
               >
                 Joriy parol
               </label>
@@ -123,7 +128,7 @@ const ChangePasswordDialog = ({
             <div>
               <label
                 htmlFor="newPassword"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="mb-1 block text-sm font-medium text-[var(--admin-ink)]"
               >
                 Yangi parol
               </label>
@@ -147,7 +152,7 @@ const ChangePasswordDialog = ({
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="mb-1 block text-sm font-medium text-[var(--admin-ink)]"
               >
                 Yangi parolni tasdiqlang
               </label>
@@ -173,18 +178,18 @@ const ChangePasswordDialog = ({
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-[var(--admin-ink)] transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Bekor qilish
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              className="admin-text-on-dark flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading && (
                 <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  className="admin-text-on-dark -ml-1 mr-2 h-4 w-4 animate-spin"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"

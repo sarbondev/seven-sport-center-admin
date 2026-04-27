@@ -1,5 +1,8 @@
 import React, { useState } from "react";
+import type { AxiosError } from "axios";
+import { ShieldCheck } from "lucide-react";
 import { Axios } from "../middlewares/Axios";
+import type { ApiErrorResponse } from "../Types/indexTypes";
 
 interface LoginResponse {
   token: string;
@@ -56,16 +59,18 @@ export const Login: React.FC = () => {
     setIsLoading(true);
     try {
       const response = (
-        await Axios.post<LoginResponse>("/admin/login", formData)
+        await Axios.post<LoginResponse>("/auth/login", formData)
       ).data;
 
       if (response.token) {
         localStorage.setItem("ssctoken", response.token);
         window.location.href = "/";
       }
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
       setError(
-        error.response?.data?.message ||
+        axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
           "Что-то пошло не так, попробуйте ещё раз"
       );
     } finally {
@@ -74,72 +79,97 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <section className="flex justify-center items-center h-screen p-4 bg-slate-100">
-      <form
-        style={{ boxShadow: "rgba(0, 0, 0, 0.1) 0px 4px 12px" }}
-        className="w-full md:max-w-md flex flex-col gap-6 p-10 bg-white rounded-md"
-        onSubmit={handleFormSubmit}
-      >
-        <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-red-700 to-red-500">
-            7sportcenter
-          </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Войдите, чтобы получить доступ к панели управления
+    <section className="flex min-h-screen items-center justify-center p-4">
+      <div className="grid w-full max-w-4xl overflow-hidden rounded-[1.5rem] border border-black/5 bg-white/75 shadow-xl backdrop-blur-xl lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="admin-text-on-dark hidden bg-[#101820] p-8 lg:flex lg:flex-col lg:justify-between">
+          <div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
+              <ShieldCheck className="h-6 w-6 text-[#d7ab52]" />
+            </div>
+            <h1 className="admin-display mt-6 text-5xl leading-none">Seven</h1>
+            <p className="admin-text-on-dark-muted mt-2 text-[11px] uppercase tracking-[0.22em]">
+              Sport Center Admin
+            </p>
+          </div>
+          <p className="admin-text-on-dark-soft max-w-xs text-sm leading-6">
+            Boshqaruv paneliga kirib murabbiylar, bloglar va administratorlar
+            ma&apos;lumotlarini bir joydan boshqaring.
           </p>
         </div>
-        {error && (
-          <p className="text-red-600 text-center bg-red-100 py-2 rounded-md">
-            {error}
-          </p>
-        )}
-        <label className="flex flex-col gap-2">
-          <p className="text-sm">
-            Номер телефона
-            <span className="text-red-600">*</span>
-          </p>
-          <input
-            type="text"
-            name="phoneNumber"
-            placeholder="90 123 45 67"
-            className={`outline-none border text-sm p-2 ${
-              errors.phoneNumber ? "border-red-600" : "border-gray-500"
-            } rounded-md`}
-            value={formData.phoneNumber}
-            onChange={handleInputChange}
-          />
-          {errors.phoneNumber && (
-            <p className="text-red-600 text-sm">{errors.phoneNumber}</p>
-          )}
-        </label>
-        <label className="flex flex-col gap-2">
-          <p className="text-sm">
-            Пароль <span className="text-red-600">*</span>
-          </p>
-          <input
-            type="password"
-            name="password"
-            placeholder="EasyPass1234"
-            className={`outline-none border text-sm p-2 ${
-              errors.password ? "border-red-600" : "border-gray-500"
-            } rounded-md`}
-            value={formData.password}
-            onChange={handleInputChange}
-          />
-          {errors.password && (
-            <p className="text-red-600 text-sm">{errors.password}</p>
-          )}
-        </label>
-        <button
-          type="submit"
-          className={`bg-red-600 text-white py-3 text-sm uppercase font-semibold rounded-md ${
-            isLoading ? "opacity-50" : ""
-          }`}
-          disabled={isLoading}
+
+        <form
+          onSubmit={handleFormSubmit}
+          className="flex w-full flex-col gap-5 p-7 md:p-9"
         >
-          {isLoading ? "Загрузка..." : "Войти"}
-        </button>
-      </form>
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.18em] text-[#c4452d]">
+              Xush kelibsiz
+            </p>
+            <h2 className="admin-display mt-2 text-4xl leading-none text-[var(--admin-ink)]">
+              Tizimga kirish
+            </h2>
+            <p className="mt-3 text-sm text-[var(--admin-muted)]">
+              Boshqaruv paneliga kirish uchun ma&apos;lumotlaringizni kiriting.
+            </p>
+          </div>
+
+          {error && (
+            <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-600">
+              {error}
+            </p>
+          )}
+
+          <label className="flex flex-col gap-2">
+            <p className="text-sm font-medium">
+              Номер телефона <span className="text-red-600">*</span>
+            </p>
+            <input
+              type="text"
+              name="phoneNumber"
+              placeholder="90 123 45 67"
+              className={`rounded-xl border bg-white px-4 py-3 text-sm outline-none transition ${
+                errors.phoneNumber
+                  ? "border-red-600"
+                  : "border-black/10 focus:border-[#c4452d]"
+              }`}
+              value={formData.phoneNumber}
+              onChange={handleInputChange}
+            />
+            {errors.phoneNumber && (
+              <p className="text-sm text-red-600">{errors.phoneNumber}</p>
+            )}
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <p className="text-sm font-medium">
+              Пароль <span className="text-red-600">*</span>
+            </p>
+            <input
+              type="password"
+              name="password"
+              placeholder="EasyPass1234"
+              className={`rounded-xl border bg-white px-4 py-3 text-sm outline-none transition ${
+                errors.password
+                  ? "border-red-600"
+                  : "border-black/10 focus:border-[#c4452d]"
+              }`}
+              value={formData.password}
+              onChange={handleInputChange}
+            />
+            {errors.password && (
+              <p className="text-sm text-red-600">{errors.password}</p>
+            )}
+          </label>
+
+          <button
+            type="submit"
+            className="admin-text-on-dark rounded-xl bg-[#c4452d] py-3.5 text-[11px] font-bold uppercase tracking-[0.14em] transition hover:bg-[#8f2917] disabled:opacity-50"
+            disabled={isLoading}
+          >
+            {isLoading ? "Загрузка..." : "Войти"}
+          </button>
+        </form>
+      </div>
     </section>
   );
 };

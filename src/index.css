@@ -1,13 +1,54 @@
-@import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --admin-bg: #f4ede3;
+  --admin-surface: rgba(255, 255, 255, 0.72);
+  --admin-ink: #111827;
+  --admin-muted: #655b52;
+  --admin-accent: #c4452d;
+  --admin-accent-dark: #8f2917;
+  --admin-line: rgba(17, 24, 39, 0.08);
+  --admin-text-inverse: #ffffff;
+  --admin-text-inverse-soft: rgba(255, 255, 255, 0.78);
+  --admin-text-inverse-muted: rgba(255, 255, 255, 0.6);
+}
+
 * {
-  font-family: "Rubik", serif;
+  font-family: "Manrope", sans-serif;
+}
+
+body {
+  background:
+    radial-gradient(circle at top, rgba(212, 167, 85, 0.12), transparent 20%),
+    linear-gradient(180deg, #fbf6ef 0%, #f4ece0 100%);
+  color: var(--admin-ink);
+}
+
+h1,
+h2,
+h3,
+.admin-display {
+  font-family: "Oswald", sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 a.active {
-  text-decoration: underline;
+  text-decoration: none;
+}
+
+.admin-text-on-dark {
+  color: var(--admin-text-inverse);
+}
+
+.admin-text-on-dark-soft {
+  color: var(--admin-text-inverse-soft);
+}
+
+.admin-text-on-dark-muted {
+  color: var(--admin-text-inverse-muted);
 }

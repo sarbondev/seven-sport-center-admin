@@ -16,8 +16,8 @@ export const PhotoCarousel: React.FC<PhotoCarouselProps> = ({
 
   if (!photos || photos.length === 0) {
     return (
-      <div className="h-[300px] w-full bg-gray-300 flex items-center justify-center">
-        <p className="text-gray-600">Нет фото</p>
+      <div className="flex h-[300px] w-full items-center justify-center bg-[#e7dacb]">
+        <p className="text-[var(--admin-muted)]">Нет фото</p>
       </div>
     );
   }
@@ -44,14 +44,14 @@ export const PhotoCarousel: React.FC<PhotoCarouselProps> = ({
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white p-1 rounded-full"
+            className="admin-text-on-dark absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/30 p-1 hover:bg-black/50"
             aria-label="Previous photo"
           >
             <ChevronLeft size={20} />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white p-1 rounded-full"
+            className="admin-text-on-dark absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/30 p-1 hover:bg-black/50"
             aria-label="Next photo"
           >
             <ChevronRight size={20} />

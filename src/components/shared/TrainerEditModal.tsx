@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Axios } from "../../middlewares/Axios";
 import useSWR from "swr";
 import { fetcher } from "../../middlewares/Fetcher";
-import { TrainerTypes } from "../../Types/indexTypes";
+import { TrainerTypes, ApiErrorResponse } from "../../Types/indexTypes";
+import type { AxiosError } from "axios";
 
 type EditDataTypes = {
   id: string;
@@ -14,7 +15,7 @@ type ModalProps = {
   setEditData: React.Dispatch<React.SetStateAction<EditDataTypes>>;
 };
 
-export default function AdminEditModal({ editData, setEditData }: ModalProps) {
+export default function TrainerEditModal({ editData, setEditData }: ModalProps) {
   const { data, error, isLoading, mutate } = useSWR<TrainerTypes[]>(
     `/trainer`,
     fetcher
@@ -22,7 +23,7 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
 
   const [formData, setFormData] = useState({
     _id: "",
-    photo: null as File | null,
+    photo: null as TrainerTypes["photo"],
     fullName: "",
     experience: "",
     level: "",
@@ -70,13 +71,13 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
       isValid = false;
     }
 
-    if (!formData.students.trim() || isNaN(Number(formData.students))) {
-      newErrors.experience = "Число студентов должен быть числом";
+    if (!formData.experience.trim() || isNaN(Number(formData.experience))) {
+      newErrors.experience = "Опыт должен быть числом";
       isValid = false;
     }
 
-    if (!formData.photo) {
-      newErrors.photo = "Фото обязательно";
+    if (!formData.students.trim() || isNaN(Number(formData.students))) {
+      newErrors.students = "Число студентов должно быть числом";
       isValid = false;
     }
 
@@ -100,8 +101,13 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
       alert("Тренер успешно изменен!");
       setEditData((prevData) => ({ ...prevData, isEditing: false, id: "" }));
       mutate();
-    } catch (error: any) {
-      alert(error.response?.data.message || "Произошла ошибка");
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      alert(
+        axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
+          "Произошла ошибка"
+      );
     } finally {
       setIsUploading(false);
     }
@@ -253,7 +259,7 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
                   className="w-full h-full object-cover rounded-lg"
                 />
               ) : (
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-[var(--admin-muted)]">
                   Загрузить фотографию
                 </span>
               )}
@@ -269,7 +275,7 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, photo: null })}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 absolute"
+                className="admin-text-on-dark absolute rounded-lg bg-red-500 px-4 py-2 text-sm font-medium hover:bg-red-600"
               >
                 Убрать
               </button>
@@ -283,7 +289,7 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
         <div className="flex justify-end gap-4">
           <button
             type="button"
-            className="bg-red-600 text-white p-2 text-sm uppercase rounded-md"
+            className="admin-text-on-dark rounded-md bg-red-600 p-2 text-sm uppercase"
             onClick={() =>
               setEditData((prevData) => ({ ...prevData, isEditing: false }))
             }
@@ -292,7 +298,7 @@ export default function AdminEditModal({ editData, setEditData }: ModalProps) {
           </button>
           <button
             type="submit"
-            className="bg-black text-white p-2 text-sm uppercase rounded-md"
+            className="admin-text-on-dark rounded-md bg-black p-2 text-sm uppercase"
             disabled={isUploading}
           >
             Сохранить
